@@ -126,8 +126,13 @@ val get_help_text : ?include_disabled_keys:unit -> t -> Help_text.t
 
 val get_grouped_help_text
   :  ?include_disabled_keys:unit
+  -> ?custom_group_order:Grouped_help_text.Group_name.t list
   -> t
   -> default_group:Grouped_help_text.Group_name.t
   -> Grouped_help_text.t
 
-val get_grouped_help_text_exn : ?include_disabled_keys:unit -> t -> Grouped_help_text.t
+val get_grouped_help_text_exn
+  :  ?include_disabled_keys:unit
+  -> ?custom_group_order:Grouped_help_text.Group_name.t list
+  -> t
+  -> Grouped_help_text.t

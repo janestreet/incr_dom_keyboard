@@ -54,10 +54,20 @@ val groups : t -> (Group_name.t * Help_text.t) list
 
     Commands with the same group name are grouped together.
 
-    Also, [add_command] is linear in both the number of groups in the grouped help text
-    and the number of commands already in its group.
+    By default, group order is determined by the order in which the groups first appear in
+    the command list.  However, if [custom_group_order] is given, it will be used to
+    determine the group order instead. Any groups that appear in [custom_group_order] but
+    not in the command list will be omitted. Any groups that appear in the command list
+    but not in [custom_group_order] will be added to the end of [custom_group_order], in
+    the order in which they first appear in the command list.
+
+    [add_command] is linear in both the number of groups in the grouped help text and the
+    number of commands already in its group.
 *)
-val of_command_list : (Group_name.t * Command.t) list -> t
+val of_command_list
+  :  ?custom_group_order:Group_name.t list
+  -> (Group_name.t * Command.t) list
+  -> t
 
 val add_command : t -> Group_name.t -> Command.t -> t
 val commands : t -> (Group_name.t * Command.t) list

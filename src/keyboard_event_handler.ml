@@ -193,24 +193,26 @@ let get_help_text ?include_disabled_keys t =
   Help_text.of_command_list help_text_commands
 ;;
 
-let get_grouped_help_text_core ?include_disabled_keys t ~get_group =
+let get_grouped_help_text_core ?include_disabled_keys ?custom_group_order t ~get_group =
   let help_text_commands =
     get_help_text_commands ?include_disabled_keys t
     |> List.map ~f:(Tuple2.map_fst ~f:get_group)
   in
-  Grouped_help_text.of_command_list help_text_commands
+  Grouped_help_text.of_command_list ?custom_group_order help_text_commands
 ;;
 
-let get_grouped_help_text ?include_disabled_keys t ~default_group =
+let get_grouped_help_text ?include_disabled_keys ?custom_group_order t ~default_group =
   get_grouped_help_text_core
     ?include_disabled_keys
+    ?custom_group_order
     t
     ~get_group:(Option.value ~default:default_group)
 ;;
 
-let get_grouped_help_text_exn ?include_disabled_keys t =
+let get_grouped_help_text_exn ?include_disabled_keys ?custom_group_order t =
   get_grouped_help_text_core
     ?include_disabled_keys
+    ?custom_group_order
     t
     ~get_group:(Option.value_exn ~here:[%here])
 ;;

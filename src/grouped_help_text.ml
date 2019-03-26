@@ -44,25 +44,34 @@ let add_group_exn t group_name commands =
   }
 ;;
 
-let of_command_list command_list =
-  let groups, group_order =
+let of_command_list ?(custom_group_order = []) command_list =
+  let groups =
+    List.map custom_group_order ~f:(fun group_name -> group_name, [])
+    |> Group_name.Map.of_alist_exn
+  in
+  let rev_group_order = List.rev custom_group_order in
+  let groups, rev_group_order =
     List.fold
       command_list
-      ~init:(Group_name.Map.empty, [])
-      ~f:(fun (groups, group_order) (group_name, command) ->
-        let group_order =
-          if Map.mem groups group_name then group_order else group_name :: group_order
+      ~init:(groups, rev_group_order)
+      ~f:(fun (groups, rev_group_order) (group_name, command) ->
+        let rev_group_order =
+          if Map.mem groups group_name
+          then rev_group_order
+          else group_name :: rev_group_order
         in
         let groups =
           Map.update groups group_name ~f:(fun commands ->
             let commands = Option.value commands ~default:[] in
             command :: commands)
         in
-        groups, group_order)
+        groups, rev_group_order)
   in
   { groups =
-      Map.map groups ~f:(fun commands -> Help_text.of_command_list (List.rev commands))
-  ; group_order = List.rev group_order
+      Map.filter_map groups ~f:(function
+        | [] -> None
+        | commands -> Some (Help_text.of_command_list (List.rev commands)))
+  ; group_order = List.rev rev_group_order
   }
 ;;
 
@@ -79,8 +88,10 @@ let add_command t group_name command =
 ;;
 
 let groups t =
-  List.map t.group_order ~f:(fun group_name ->
-    group_name, Map.find_exn t.groups group_name)
+  List.filter_map t.group_order ~f:(fun group_name ->
+    let open Option.Let_syntax in
+    let%map group = Map.find t.groups group_name in
+    group_name, group)
 ;;
 
 let commands t =
