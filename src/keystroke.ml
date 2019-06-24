@@ -219,8 +219,7 @@ let shift_combo_to_string (key : Keyboard_code.t) =
 let keyboard_code_to_string (key : Keyboard_code.t) (key_with_prefix : With_prefix.t) =
   match key_with_prefix with
   | Key str -> String.lowercase str
-  | Digit str
-  | Arrow str -> str
+  | Digit str | Arrow str -> str
   | Numpad str ->
     (match key with
      | NumpadMultiply -> "*"

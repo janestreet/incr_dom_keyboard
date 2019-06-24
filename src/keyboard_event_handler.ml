@@ -153,7 +153,8 @@ let merge_core = Map.merge_skewed
 let merge = merge_core ~combine:(fun ~key:_ _id1 id2 -> id2)
 
 let merge_exn =
-  merge_core ~combine:(fun ~key _ _ -> failwithf !"Duplicate key %{Keystroke#hum}" key ())
+  merge_core ~combine:(fun ~key _ _ ->
+    failwithf !"Duplicate key %{Keystroke#hum}" key ())
 ;;
 
 let handle_event t ev =

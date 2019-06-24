@@ -35,12 +35,14 @@ module Command : sig
 
   module Format : sig
     type t =
-      [ `Keys of [`Sep of string]
+      [ `Keys of [ `Sep of string ]
       | (* separator between keys *)
         (* This function can be used to modify the description before displaying it, e.g.
            capitalizing/uncapitalizing it. *)
-        `Description of (string -> string) option
-      | `Text of string ]
+        `Description of
+          (string -> string) option
+      | `Text of string
+      ]
         list
 
     (** The [default] format is:

@@ -30,9 +30,10 @@ module Command = struct
 
   module Format = struct
     type t =
-      [ `Keys of [`Sep of string]
+      [ `Keys of [ `Sep of string ]
       | `Description of (string -> string) option
-      | `Text of string ]
+      | `Text of string
+      ]
         list
 
     let default =
