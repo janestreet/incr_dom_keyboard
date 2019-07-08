@@ -99,20 +99,23 @@ val of_action_list_exn : Action.t list -> t
 
 val of_command_list_exn : Command.t list -> t
 
-(** [add_action_exn], [add_command_exn], and [add_disabled_key_exn] add a new action to a
-    keyboard event handler. If any key from the new action already exists in the handler,
-    an exception is raised. *)
+(** [add_action_exn] adds a new action to a keyboard event handler. If any key from the
+    new action already exists in the handler, an exception is raised. *)
 val add_action_exn : t -> Action.t -> t
 
+(** Like {!add_action_exn}, but restricted to command actions *)
 val add_command_exn : t -> Command.t -> t
+
+(** Like {!add_action_exn}, but restricted to disabled key actions *)
 val add_disabled_key_exn : t -> Keystroke.t -> t
 
-(** [set_action], [set_command], and [set_disabled_key] are similar to their respective
-    [*_exn] functions, but if a key from the new action already exists in the handler,
-    that key's action is updated to the new action. *)
+(** Like {!add_action_exn}, but overrides old actions in the case of a conflict. *)
 val set_action : t -> Action.t -> t
 
+(** Like {!set_action}, but restricted to command actions *)
 val set_command : t -> Command.t -> t
+
+(** Like {!set_action}, but restricted to disabled key actions *)
 val set_disabled_key : t -> Keystroke.t -> t
 
 (** [merge_exn t1 t2] and [merge t1 t2] create a new keyboard event handler containing the
