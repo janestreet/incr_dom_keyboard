@@ -118,12 +118,17 @@ val set_command : t -> Command.t -> t
 (** Like {!set_action}, but restricted to disabled key actions *)
 val set_disabled_key : t -> Keystroke.t -> t
 
-(** [merge_exn t1 t2] and [merge t1 t2] create a new keyboard event handler containing the
-    actions from both [t1] and [t2]. If there is a duplicate key between [t1] and [t2],
-    [merge_exn] raises an exception while [merge] uses the action from [t2]. *)
-val merge_exn : t -> t -> t
+(** [merge t1 t2 ~on_dup] creates new keyboard event handlers containing the actions from
+    [t1] and [t2]. [on_dup] dictates how to deal with keys that have actions in both [t1]
+    and [t2]:
 
-val merge : t -> t -> t
+    - [`Override_with_right] uses the action from [t2].
+    - [`Both] uses both actions, and combines them into a single line if used with
+      [get_help_text]. Note that if the actions belong to different groups in the help
+      text, it will use the first group.
+    - [`Throw] raises. *)
+val merge : on_dup:[ `Override_with_right | `Both | `Throw ] -> t -> t -> t
+
 val handle_event : t -> Keyboard_event.t -> Vdom.Event.t option
 val get_help_text : ?include_disabled_keys:unit -> t -> Help_text.t
 

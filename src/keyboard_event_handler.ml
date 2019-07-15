@@ -120,6 +120,24 @@ module Action = struct
     | Command command -> Command.get_help_text command
     | Disabled_key key -> { Help_text.Command.keys = [ key ]; description = "Disabled" }
   ;;
+
+  let merge t1 t2 ~keys =
+    match t1, t2 with
+    | Disabled_key _, Disabled_key _ -> t1
+    | Disabled_key _, Command command | Command command, Disabled_key _ ->
+      let handler ev =
+        Vdom.Event.Many [ Vdom.Event.Prevent_default; command.handler ev ]
+      in
+      Command { command with handler }
+    | Command command1, Command command2 ->
+      Command
+        { keys
+        ; description = sprintf "%s/%s" command1.description command2.description
+        ; group = Option.first_some command1.group command2.group
+        ; handler =
+            (fun ev -> Vdom.Event.Many [ command1.handler ev; command2.handler ev ])
+        }
+  ;;
 end
 
 type t = (Uid.t * Action.t) Keystroke.Map.t [@@deriving sexp_of]
@@ -150,11 +168,72 @@ let add_action_exn t action = add_action_core t action Map.add_exn
 let add_command_exn t command = add_action_exn t (Command command)
 let add_disabled_key_exn t key = add_action_exn t (Disabled_key key)
 let merge_core = Map.merge_skewed
-let merge = merge_core ~combine:(fun ~key:_ _id1 id2 -> id2)
+let merge_override_with_right = merge_core ~combine:(fun ~key:_ _id1 id2 -> id2)
 
 let merge_exn =
   merge_core ~combine:(fun ~key _ _ ->
     failwithf !"Duplicate key %{Keystroke#hum}" key ())
+;;
+
+module Uid_pair = struct
+  module T = struct
+    type t = Uid.t * Uid.t [@@deriving sexp, hash, compare]
+  end
+
+  include T
+  include Hashable.Make (T)
+end
+
+(* [merge_both] is complicated because we want to (a) combine all keys that appear in both
+   t1 and t2, and (b) remove those keys from any other actions in t1 and t2. *)
+let merge_both t1 t2 =
+  let combined_keys_by_id_pair = Uid_pair.Table.create () in
+  let add_combined_keys_by_id_pair ~id1 ~id2 ~key =
+    Hashtbl.update combined_keys_by_id_pair (id1, id2) ~f:(function
+      | None -> Uid.create (), [ key ]
+      | Some (id, keys) -> id, keys @ [ key ])
+  in
+  let combined_keys_by_id = Uid.Table.create () in
+  let add_combined_keys_by_id ~id ~key =
+    Hashtbl.update combined_keys_by_id id ~f:(function
+      | None -> Keystroke.Set.singleton key
+      | Some keys -> Set.add keys key)
+  in
+  Map.iter2 t1 t2 ~f:(fun ~key ~data ->
+    match data with
+    | `Left _ | `Right _ -> ()
+    | `Both ((id1, _), (id2, _)) ->
+      add_combined_keys_by_id_pair ~id1 ~id2 ~key;
+      add_combined_keys_by_id ~id:id1 ~key;
+      add_combined_keys_by_id ~id:id2 ~key);
+  Map.merge t1 t2 ~f:(fun ~key:_ ->
+    function
+    | `Both ((id1, action1), (id2, action2)) ->
+      let new_id, keys = Hashtbl.find_exn combined_keys_by_id_pair (id1, id2) in
+      let action = Action.merge action1 action2 ~keys in
+      Some (new_id, action)
+    | `Left (id, action) | `Right (id, action) ->
+      (match Hashtbl.find combined_keys_by_id id, action with
+       | None, _ -> Some (id, action)
+       (* this case is tricky: if the id is in [combined_keys_by_id] and the action is
+          disabling a key, then it *should* have appeared in the `Both case. *)
+       | Some _, Action.Disabled_key key ->
+         failwithf !"bug: [merge] failed on disabled key %{sexp: Keystroke.t}" key ()
+       | Some combined_keys, Action.Command command ->
+         let keys_left =
+           List.filter command.keys ~f:(fun k -> not (Set.mem combined_keys k))
+         in
+         (match keys_left with
+          (* if all the keys were combined, then this action can just go away *)
+          | [] -> None
+          | keys -> Some (id, Command { command with keys }))))
+;;
+
+let merge ~on_dup =
+  match on_dup with
+  | `Override_with_right -> merge_override_with_right
+  | `Both -> merge_both
+  | `Throw -> merge_exn
 ;;
 
 let handle_event t ev =
