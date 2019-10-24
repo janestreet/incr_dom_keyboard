@@ -14,7 +14,7 @@ depends: [
   "incr_dom"
   "ppx_jane"
   "virtual_dom"
-  "dune"            {build & >= "1.5.1"}
+  "dune"            {>= "1.5.1"}
   "js_of_ocaml"     {>= "3.4.1"}
   "js_of_ocaml-ppx"
 ]
