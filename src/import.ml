@@ -1,3 +1,3 @@
-include Incr_dom
-include Incr.Let_syntax
+include Incr_dom.Incr.Let_syntax
+include Virtual_dom
 include Js_of_ocaml
