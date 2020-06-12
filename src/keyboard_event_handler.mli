@@ -130,6 +130,7 @@ val set_disabled_key : t -> Keystroke.t -> t
 val merge : on_dup:[ `Override_with_right | `Both | `Throw ] -> t -> t -> t
 
 val handle_event : t -> Keyboard_event.t -> Vdom.Event.t option
+val handle_or_ignore_event : t -> Keyboard_event.t -> Vdom.Event.t
 val get_help_text : ?include_disabled_keys:unit -> t -> Help_text.t
 
 val get_grouped_help_text

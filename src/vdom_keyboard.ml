@@ -9,8 +9,7 @@ let with_keyboard_handler node keyboard_handler =
   let open Virtual_dom.Vdom in
   Node.div
     [ Attr.on_keydown (fun event ->
-        Keyboard_event_handler.handle_event keyboard_handler event
-        |> Option.value ~default:Event.Ignore)
+        Keyboard_event_handler.handle_or_ignore_event keyboard_handler event)
     ]
     [ node ]
 ;;

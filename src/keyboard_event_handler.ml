@@ -242,6 +242,10 @@ let handle_event t ev =
     ~f:(fun (_, action) -> Action.handler action ev)
 ;;
 
+let handle_or_ignore_event t ev =
+  Option.value ~default:Vdom.Event.Ignore (handle_event t ev)
+;;
+
 let disabled_key_group_name = Grouped_help_text.Group_name.of_string "Disabled keys"
 
 let get_help_text_commands ?include_disabled_keys t =
