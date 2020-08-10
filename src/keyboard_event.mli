@@ -20,7 +20,8 @@ val no_modifiers : t -> bool
 
 val map
   :  t
-  -> f:([ `Ctrl of bool ]
+  -> f:
+       ([ `Ctrl of bool ]
         * [ `Alt of bool ]
         * [ `Shift of bool ]
         * [ `Meta of bool ]

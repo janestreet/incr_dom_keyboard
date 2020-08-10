@@ -54,9 +54,7 @@ module Variable_handler_command = struct
     { keys; description; group; handler = handler env }
   ;;
 
-  let get_help_text { keys; description; _ } : Help_text.Command.t =
-    { keys; description }
-  ;;
+  let get_help_text { keys; description; _ } : Help_text.Command.t = { keys; description }
 end
 
 module Variable_handler_action = struct

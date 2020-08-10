@@ -171,8 +171,7 @@ let merge_core = Map.merge_skewed
 let merge_override_with_right = merge_core ~combine:(fun ~key:_ _id1 id2 -> id2)
 
 let merge_exn =
-  merge_core ~combine:(fun ~key _ _ ->
-    failwithf !"Duplicate key %{Keystroke#hum}" key ())
+  merge_core ~combine:(fun ~key _ _ -> failwithf !"Duplicate key %{Keystroke#hum}" key ())
 ;;
 
 module Uid_pair = struct
@@ -206,8 +205,7 @@ let merge_both t1 t2 =
       add_combined_keys_by_id_pair ~id1 ~id2 ~key;
       add_combined_keys_by_id ~id:id1 ~key;
       add_combined_keys_by_id ~id:id2 ~key);
-  Map.merge t1 t2 ~f:(fun ~key:_ ->
-    function
+  Map.merge t1 t2 ~f:(fun ~key:_ -> function
     | `Both ((id1, action1), (id2, action2)) ->
       let new_id, keys = Hashtbl.find_exn combined_keys_by_id_pair (id1, id2) in
       let action = Action.merge action1 action2 ~keys in

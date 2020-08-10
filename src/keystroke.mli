@@ -11,15 +11,7 @@ include Comparable.S_binable with type t := t
 include Hashable.S_binable with type t := t
 
 val create : Keyboard_code.t -> ctrl:bool -> alt:bool -> shift:bool -> meta:bool -> t
-
-val create'
-  :  ?ctrl:unit
-  -> ?alt:unit
-  -> ?shift:unit
-  -> ?meta:unit
-  -> Keyboard_code.t
-  -> t
-
+val create' : ?ctrl:unit -> ?alt:unit -> ?shift:unit -> ?meta:unit -> Keyboard_code.t -> t
 val key : t -> Keyboard_code.t
 val ctrl : t -> bool
 val alt : t -> bool
