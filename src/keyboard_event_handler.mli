@@ -68,6 +68,7 @@ end
 module Command : sig
   type t =
     { keys : Keystroke.t list
+    (** Descriptions can be displayed using [Vdom_keyboard.Help_text]. *)
     ; description : string
     ; group : Grouped_help_text.Group_name.t option
     ; handler : Handler.t
