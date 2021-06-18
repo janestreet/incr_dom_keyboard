@@ -8,8 +8,8 @@ module Keyboard_event = Keyboard_event
 let with_keyboard_handler node keyboard_handler =
   let open Virtual_dom.Vdom in
   Node.div
-    [ Attr.on_keydown (fun event ->
-        Keyboard_event_handler.handle_or_ignore_event keyboard_handler event)
-    ]
+    ~attr:
+      (Attr.on_keydown (fun event ->
+         Keyboard_event_handler.handle_or_ignore_event keyboard_handler event))
     [ node ]
 ;;

@@ -1,4 +1,4 @@
-open Core_kernel
+open Core
 open Js_of_ocaml
 
 module Keyboard_code = struct
@@ -248,7 +248,7 @@ let keyboard_code_to_string (key : Keyboard_code.t) (key_with_prefix : With_pref
 ;;
 
 let to_string_hum t =
-  let open Core_kernel in
+  let open Core in
   let ctrl_str = if t.ctrl then "Ctrl+" else "" in
   let alt_str = if t.alt then "Alt+" else "" in
   let meta_str = if t.meta then "Meta+" else "" in

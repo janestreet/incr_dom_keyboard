@@ -1,4 +1,4 @@
-open Core_kernel
+open Core
 open! Import
 module Const_handler = Keyboard_event_handler
 module Action = Const_handler.Action

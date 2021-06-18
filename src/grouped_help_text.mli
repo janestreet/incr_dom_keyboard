@@ -1,4 +1,4 @@
-open Core_kernel
+open Core
 open Import
 
 (** A [Grouped_help_text.t] is similar to a [Help_text.t], but allows the user to organize

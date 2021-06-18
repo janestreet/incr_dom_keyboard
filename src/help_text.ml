@@ -1,4 +1,4 @@
-open Core_kernel
+open Core
 open Import
 
 module View_spec = struct
@@ -15,7 +15,7 @@ module View_spec = struct
   let with_classes ~key_class ~plain_text_class =
     let text_span class_ text =
       let open Vdom in
-      Node.span [ Attr.class_ class_ ] [ Node.text text ]
+      Node.span ~attr:(Attr.class_ class_) [ Node.text text ]
     in
     { key = text_span key_class; plain_text = text_span plain_text_class }
   ;;
@@ -64,7 +64,6 @@ module Command = struct
   let view t view_spec format =
     let open Vdom in
     Node.div
-      []
       (List.concat_map format ~f:(function
          | `Keys (`Sep sep) -> view_keys t view_spec ~sep
          | `Description f -> [ view_description ?f t view_spec ]
@@ -85,12 +84,11 @@ let view_rows ?(sep = " or ") t (view_spec : View_spec.t) =
   let align how = Css_gen.(text_align how) |> Attr.style in
   List.map (commands t) ~f:(fun command ->
     Node.tr
-      []
       [ Node.td
-          [ align `Right ]
+          ~attr:(align `Right)
           (Command.view_keys command view_spec ~sep @ [ view_spec.plain_text " : " ])
-      ; Node.td [ align `Left ] [ Command.view_description command view_spec ]
+      ; Node.td ~attr:(align `Left) [ Command.view_description command view_spec ]
       ])
 ;;
 
-let view ?sep t view_spec = Vdom.Node.table [] (view_rows ?sep t view_spec)
+let view ?sep t view_spec = Vdom.Node.table (view_rows ?sep t view_spec)
