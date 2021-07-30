@@ -43,12 +43,12 @@ module Condition : sig
 end
 
 module Handler : sig
-  (** A [Handler.t] handles a keyboard event by returning a [Vdom.Event.t]. These should
+  (** A [Handler.t] handles a keyboard event by returning a [unit Vdom.Effect.t]. These should
       be used as building blocks for keyboard event handlers, for instance to handle a
       specific set of keys.
   *)
 
-  type t = Keyboard_event.t -> Vdom.Event.t [@@deriving sexp]
+  type t = Keyboard_event.t -> unit Vdom.Effect.t [@@deriving sexp]
 
   (** [with_prevent_default t] handles the event using handler [t], and additionally
       prevents the default handler. *)
@@ -81,7 +81,7 @@ module Action : sig
   type t =
     | Command of Command.t
     (** A disabled key is essentially a command that prevents the default handler of
-        that key (by returning [Event.Prevent_default]), and does nothing else.
+        that key (by returning [Effect.Prevent_default]), and does nothing else.
         Users can choose to omit disabled keys from the help menu. *)
     | Disabled_key of Keystroke.t
   [@@deriving sexp, variants]
@@ -130,8 +130,8 @@ val set_disabled_key : t -> Keystroke.t -> t
     - [`Throw] raises. *)
 val merge : on_dup:[ `Override_with_right | `Both | `Throw ] -> t -> t -> t
 
-val handle_event : t -> Keyboard_event.t -> Vdom.Event.t option
-val handle_or_ignore_event : t -> Keyboard_event.t -> Vdom.Event.t
+val handle_event : t -> Keyboard_event.t -> unit Vdom.Effect.t option
+val handle_or_ignore_event : t -> Keyboard_event.t -> unit Vdom.Effect.t
 val get_help_text : ?include_disabled_keys:unit -> t -> Help_text.t
 
 val get_grouped_help_text

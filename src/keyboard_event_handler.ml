@@ -68,19 +68,19 @@ end
 module Handler = struct
   open Vdom
 
-  type t = Keyboard_event.t -> Event.t [@@deriving sexp]
+  type t = Keyboard_event.t -> unit Ui_effect.t [@@deriving sexp]
 
-  let prevent_default _ev = Event.Prevent_default
-  let with_prevent_default t ev = Event.Many [ Event.Prevent_default; t ev ]
+  let prevent_default _ev = Effect.Prevent_default
+  let with_prevent_default t ev = Effect.Many [ Effect.Prevent_default; t ev ]
 
   let handle_by_case ?prevent_default ts ev =
     match List.find_map ts ~f:(fun (cond, t) -> Option.some_if (cond ev) t) with
-    | None -> Event.Ignore
+    | None -> Effect.Ignore
     | Some t ->
       let event = t ev in
       (match prevent_default with
        | None -> event
-       | Some () -> Event.Many [ event; Event.Prevent_default ])
+       | Some () -> Effect.Many [ event; Effect.Prevent_default ])
   ;;
 
   let only_handle_if ?prevent_default cond t = handle_by_case ?prevent_default [ cond, t ]
@@ -126,7 +126,7 @@ module Action = struct
     | Disabled_key _, Disabled_key _ -> t1
     | Disabled_key _, Command command | Command command, Disabled_key _ ->
       let handler ev =
-        Vdom.Event.Many [ Vdom.Event.Prevent_default; command.handler ev ]
+        Vdom.Effect.Many [ Vdom.Effect.Prevent_default; command.handler ev ]
       in
       Command { command with handler }
     | Command command1, Command command2 ->
@@ -135,7 +135,7 @@ module Action = struct
         ; description = sprintf "%s/%s" command1.description command2.description
         ; group = Option.first_some command1.group command2.group
         ; handler =
-            (fun ev -> Vdom.Event.Many [ command1.handler ev; command2.handler ev ])
+            (fun ev -> Vdom.Effect.Many [ command1.handler ev; command2.handler ev ])
         }
   ;;
 end
@@ -241,7 +241,7 @@ let handle_event t ev =
 ;;
 
 let handle_or_ignore_event t ev =
-  Option.value ~default:Vdom.Event.Ignore (handle_event t ev)
+  Option.value ~default:Vdom.Effect.Ignore (handle_event t ev)
 ;;
 
 let disabled_key_group_name = Grouped_help_text.Group_name.of_string "Disabled keys"
